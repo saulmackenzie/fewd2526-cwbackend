@@ -21,7 +21,7 @@ class FamilyOrganiser {
 
             // Insert default event
              this.db.insert({
-                event: gym,
+                event: "gym",
                 date: '2025-09-16',
                 startTime: '16:15',
                 endTime: '17:00',

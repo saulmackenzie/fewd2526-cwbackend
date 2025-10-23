@@ -3,8 +3,6 @@ const controller = require('../controllers/foController');
 const router = express.Router();
 const passport = require("passport");
 
-
-
 router.post("/register", controller.process_new_user);
 router.post("/login", controller.handle_login)
 router.get('/all-events', controller.json_events_endpoint);
