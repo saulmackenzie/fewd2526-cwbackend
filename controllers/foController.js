@@ -32,23 +32,34 @@ exports.json_users_endpoint = (req, res) => {
 exports.process_new_user = (req, res, next) => {
     const user = req.body.username;
     const password = req.body.password;
-    const family = req.body.familyId;
-    const saltHash = utils.genPassword(password);
 
+    // Fail if missing fields
+    if (!user || !password) {
+        res.status(400).json({ success: false, msg: "Please fill out all fields" });
+        return;
+    }
+
+    // Generate salt and hash
+    const saltHash = utils.genPassword(password);
     const salt = saltHash.salt;
     const hash = saltHash.hash;
 
+    // Generate unique family ID
+    const sanitizedUser = user.replace(/\s+/g, '_').toLowerCase();
+    const family = `family_${sanitizedUser}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 8)}`;
+
+    // Populate new user object
     const newUser = {
         username: user,
         hash: hash,
         salt: salt,
-        familyId: family || 'family_1', // Default family if not provided
+        familyId: family,
         role: "administrator",
         createdAt: new Date().toISOString(),
     };
 
+    // Create new user in the database
     console.log(newUser);
-
     userDAO.create(newUser, function (err, user) {
         res.json({ success: true, user: user });
     });
@@ -102,13 +113,13 @@ exports.handle_login = (req, res) => {
     const currentUserRole = req.body.role || 'member';
     const currentUserFamily = req.body.familyId || 'family_1';
 
-    userDAO.lookup(currentUser, currentUserFamily, (err, user) => {
-        console.log(err, user)
+    userDAO.findByUsername(currentUser, (err, user) => {
+        console.log(err, user);
 
         if (err || !user) {
             return res.status(403).json({ msg: 'error or no user found' });
         }
-        console.log(user)
+        console.log(user);
         let isValid = false;
         if (user) {
             isValid = utils.validPassword(
@@ -132,10 +143,43 @@ exports.handle_login = (req, res) => {
             return res
                 .status(401)
                 .json({ success: false, msg: "problem" });
-
         }
-
     });
+
+    // userDAO.lookup(currentUser, currentUserFamily, (err, user) => {
+    //     console.log(err, user)
+
+    //     if (err || !user) {
+    //         return res.status(403).json({ msg: 'error or no user found' });
+    //     }
+    //     console.log(user)
+    //     let isValid = false;
+    //     if (user) {
+    //         isValid = utils.validPassword(
+    //             req.body.password,
+    //             user.hash,
+    //             user.salt
+    //         );
+    //     }
+    //     console.log("user: ", user)
+    //     if (isValid) {
+    //         const tokenObject = utils.issueJWT(user);
+    //         return res.status(200).json({
+    //             success: true,
+    //             token: tokenObject.token,
+    //             expiresIn: tokenObject.expires,
+    //             username: user.username,
+    //             userrole: user.role,
+    //             userfamily: user.familyId,
+    //         });
+    //     } else {
+    //         return res
+    //             .status(401)
+    //             .json({ success: false, msg: "problem" });
+
+    //     }
+
+    // });
 };
 
 exports.show_edit_event = (req, res) => {

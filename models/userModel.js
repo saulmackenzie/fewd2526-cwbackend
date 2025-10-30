@@ -80,6 +80,21 @@ class userDAO {
         });
     }
 
+    findByUsername(username, cb) {
+        this.db.find({ username: username }, (err, entries) => {
+            if (err) {
+                console.log(err);
+                return err;
+            } else {
+                console.log(entries);
+                if (entries.length == 0) {
+                    return cb(null, null);
+                }
+                return cb(null, entries[0]);
+            } 
+        });
+    }
+
     getUserById(id, cb) {
         this.db.find({ _id: id }, (err, entries) => {
             if (err) {
