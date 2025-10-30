@@ -5,9 +5,22 @@ const db = new familyorganiserDAO("./data/events.db");
 db.init();
 
 exports.json_events_endpoint = (req, res) => {
-    db.getAllEvents().then((list) => {
-        res.json(list);
-    })
+    const familyId = req.query.familyId || req.params.familyId || req.body.familyId;
+    console.log('Fetching events for familyId:', familyId);
+    db.getAllEvents()
+      .then((list) => {
+          if (!familyId) {
+              // no filter requested -> return all events
+              return res.json(list);
+          }
+          // filter by familyId
+          const familyEvents = list.filter(ev => ev.familyId === familyId);
+          return res.json(familyEvents);
+      })
+      .catch((err) => {
+          console.error('Error fetching events:', err);
+          res.status(500).json({ success: false, error: 'Unable to fetch events' });
+      });
 }
 
 exports.json_users_endpoint = (req, res) => {
