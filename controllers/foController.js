@@ -59,9 +59,20 @@ exports.process_new_user = (req, res, next) => {
     };
 
     // Create new user in the database
-    console.log(newUser);
+    console.log("newUser:\n", newUser);
     userDAO.create(newUser, function (err, user) {
-        res.json({ success: true, user: user });
+        if (err) {
+            console.log("Error creating user:", err);
+            return res.status(500).json({ success: false, msg: "Error creating user" });
+        }
+
+        try {
+            console.log("User created successfully:", user);
+            return res.status(201).json({ success: true, user: user });
+        } catch (sendErr) {
+            console.log("Error creating user:", sendErr);
+            return res.status(500).json({ success: false, msg: "Error creating user" });
+        }
     });
 };
 
@@ -109,9 +120,7 @@ exports.post_new_event = (req, res) => {
 
 exports.handle_login = (req, res) => {
     console.log(req.body);
-    const currentUser = req.body.username || 'Admin1';
-    const currentUserRole = req.body.role || 'member';
-    const currentUserFamily = req.body.familyId || 'family_1';
+    const currentUser = req.body.username;
 
     userDAO.findByUsername(currentUser, (err, user) => {
         console.log(err, user);
@@ -145,41 +154,6 @@ exports.handle_login = (req, res) => {
                 .json({ success: false, msg: "problem" });
         }
     });
-
-    // userDAO.lookup(currentUser, currentUserFamily, (err, user) => {
-    //     console.log(err, user)
-
-    //     if (err || !user) {
-    //         return res.status(403).json({ msg: 'error or no user found' });
-    //     }
-    //     console.log(user)
-    //     let isValid = false;
-    //     if (user) {
-    //         isValid = utils.validPassword(
-    //             req.body.password,
-    //             user.hash,
-    //             user.salt
-    //         );
-    //     }
-    //     console.log("user: ", user)
-    //     if (isValid) {
-    //         const tokenObject = utils.issueJWT(user);
-    //         return res.status(200).json({
-    //             success: true,
-    //             token: tokenObject.token,
-    //             expiresIn: tokenObject.expires,
-    //             username: user.username,
-    //             userrole: user.role,
-    //             userfamily: user.familyId,
-    //         });
-    //     } else {
-    //         return res
-    //             .status(401)
-    //             .json({ success: false, msg: "problem" });
-
-    //     }
-
-    // });
 };
 
 exports.show_edit_event = (req, res) => {

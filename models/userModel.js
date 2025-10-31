@@ -48,16 +48,32 @@ class userDAO {
     }
 
 
-    create(newUser) {
+    create(newUser, cb) {
         const that = this;
         let entry = newUser
 
-        that.db.insert(entry, (err) => {
-            if (err) {
-                console.log("Can't insert user: ", newUser.username);
-            }
-        });
+        // If a callback is provided, use it
+        if (typeof cb === 'function') {
+            that.db.insert(entry, (err, newDoc) => {
+                if (err) {
+                    console.log("Can't insert user:", newUser.username, err);
+                    return cb(err);
+                }
+                return cb(null, newDoc);
+            });
+            return;
+        }
 
+        // Otherwise return a Promise
+        return new Promise((resolve, reject) => {
+            that.db.insert(entry, (err, newDoc) => {
+                if (err) {
+                    console.log("Can't insert user:", newUser.username, err);
+                    return reject(err);
+                }
+                resolve(newDoc);
+            });
+        });
     }
 
 
