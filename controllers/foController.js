@@ -240,7 +240,7 @@ exports.delete_event = (req, res) => {
     const eventId = req.params.id;
     const currentUser = req.body.username;
     const currentFamily = req.body.userfamily;
-    console.log(eventId)
+    console.log(`eventId: ${eventId}\ncurrentUser: ${currentUser}\ncurrentFamily: ${currentFamily}`);
     userDAO.lookup(currentUser, currentFamily, (err, user) => {
         if (err || !user) return res.status(403).json({ 'message': 'Forbidden' });
         db.getEventById(eventId).then((event) => {
@@ -253,7 +253,7 @@ exports.delete_event = (req, res) => {
             }
             db.deleteEvent(eventId).then((numDeleted) => {
                 if (numDeleted === 0) {
-                    res.status(404).json({ 'message': 'Event not found' });
+                    res.status(404).json({ 'message': 'Event not found (numDeleted === 0)' });
                     return;
                 }
                 res.status(202).json({ 'event deleted': numDeleted })
