@@ -188,16 +188,18 @@ exports.show_edit_event = (req, res) => {
 // Update event
 exports.update_event = (req, res) => {
     const eventId = req.params.id;
-    const currentUser = req.user;
+    const currentUser = req.body.user;
 
-    userDAO.lookup(currentUser, req.family, (err, user) => {
+    console.log(req.body);
+
+    userDAO.lookup(currentUser, req.body.familyId, (err, user) => {
         if (err || !user) return res.status(403).send('Forbidden');
         db.getEventById(eventId).then((event) => {
             if (!event) {
                 res.status(404).send('Event not found');
                 return;
             }
-            if (event.organiser !== currentUser) {
+            if (event.familyId !== req.body.familyId) {
                 return res.status(403).send('Forbidden');
             }
 
@@ -207,21 +209,15 @@ exports.update_event = (req, res) => {
                 requiredItems: req.body.requiredItems,
                 location: req.body.location,
                 date: req.body.date,
-                organiser: req.body.organiser,
                 startTime: req.body.startTime,
                 endTime: req.body.endTime,
-                eventType: req.body.eventType,
-                organiser: currentUser,
                 familyId: event.familyId,
-                participants: req.body.participants
-
             };
             db.updateEvent(eventId, updateData).then((numUpdated) => {
                 if (numUpdated === 0) {
                     res.status(404).send('Event not found');
                     return;
                 }
-                res.redirect('/loggedIn');
             })
                 .catch((err) => {
                     console.log('Error updating event:', err);

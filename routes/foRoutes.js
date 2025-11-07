@@ -11,6 +11,7 @@ router.post('/get-family-events', controller.family_events_endpoint);
 router.post('/new-event-entry', controller.new_event_entry);
 router.post('/post-new-event', controller.post_new_event);
 router.post('/edit-event/:id', controller.show_edit_event);
+router.post('/update-event/:id', controller.update_event);
 router.post('/delete-event/:id', controller.delete_event);
 
 router.use((req, res) => {
