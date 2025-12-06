@@ -3,6 +3,3 @@
 .DS_Store
 
 .env
-
-# Database files
-/data/*.db
