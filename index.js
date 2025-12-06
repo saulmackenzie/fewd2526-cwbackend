@@ -24,6 +24,8 @@ app.use(cookieParser())
 
 app.use('/', router);
 
-app.listen(3002, () => {
-    console.log('Server started on port 3002. Ctrl^c to quit.')
+const PORT = process.env.PORT || 3002;
+
+app.listen(PORT, () => {
+    console.log(`Server started on port ${PORT}. Ctrl^c to quit.`)
 })

@@ -1,6 +1,13 @@
 const Datastore = require('gray-nedb');
 const bcrypt = require('bcrypt');
+const fs = require('fs');
+const path = require('path');
 const saltRounds = 10;
+
+const dataDir = path.join(__dirname, '..', 'data');
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+}
 
 class userDAO {
     constructor(dbFilePath) {
@@ -183,6 +190,6 @@ class userDAO {
 
 }
 
-const dao = new userDAO("./data/users.db");
+const dao = new userDAO();
 dao.init();
 module.exports = dao;

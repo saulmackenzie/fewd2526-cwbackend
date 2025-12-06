@@ -1,4 +1,12 @@
 const nedb = require('gray-nedb');
+const fs = require('fs');
+const path = require('path');
+
+const dataDir = path.join(__dirname, '..', 'data');
+if (!fs.existsSync(dataDir)) {
+    fs.mkdirSync(dataDir, { recursive: true });
+}
+
 class FamilyOrganiser {
 
     constructor(dbFilePath) {
